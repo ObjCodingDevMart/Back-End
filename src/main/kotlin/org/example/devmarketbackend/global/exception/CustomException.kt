@@ -1,14 +1,8 @@
-package org.example.devmarketbackend.global.exception;
+package org.example.devmarketbackend.global.exception
 
-import likelion13th.codashop.global.api.BaseCode;
-import lombok.Getter;
+import org.example.devmarketbackend.global.api.BaseCode
 
-@Getter
-public class CustomException extends RuntimeException {
-    private final BaseCode errorCode;
+class CustomException(
+    val errorCode: BaseCode
+) : RuntimeException(errorCode.getReason().message)
 
-    public CustomException(BaseCode errorCode) {
-        super(errorCode.getReason().getMessage());
-        this.errorCode = errorCode;
-    }
-}

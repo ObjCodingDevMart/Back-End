@@ -1,12 +1,12 @@
-package org.example.devmarketbackend.global.api;
+package org.example.devmarketbackend.global.api
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus
 
-@Getter
-@AllArgsConstructor
-public enum SuccessCode implements BaseCode { // 성공
+enum class SuccessCode(
+    private val httpStatus: HttpStatus,
+    private val code: String,
+    private val message: String
+) : BaseCode { // 성공
     // Common
     OK(HttpStatus.OK, "COMMON_200", "Success"),
     CREATED(HttpStatus.CREATED, "COMMON_201", "Created"),
@@ -36,28 +36,22 @@ public enum SuccessCode implements BaseCode { // 성공
     ORDER_GET_SUCCESS(HttpStatus.OK, "ORDER_2001", "주문 조회에 성공했습니다."),
     ORDER_LIST_SUCCESS(HttpStatus.OK, "ORDER_2002", "모든 주문 목록 조회에 성공했습니다."),
     ORDER_CANCEL_SUCCESS(HttpStatus.OK, "ORDER_2003", "주문이 성공적으로 취소되었습니다."),
-    ORDER_LIST_EMPTY(HttpStatus.OK,"ORDER_2004" ,"주문목록이 없습니다." ),
+    ORDER_LIST_EMPTY(HttpStatus.OK, "ORDER_2004", "주문목록이 없습니다."),
 
     // S3
     S3_UPLOAD_SUCCESS(HttpStatus.OK, "S3_200", "S3 업로드가 성공적으로 완료되었습니다."),
-
 
     // User Address 관련 응답 코드 추가
     ADDRESS_SAVE_SUCCESS(HttpStatus.CREATED, "ADDRESS_201", "주소 저장에 성공했습니다."),
     ADDRESS_GET_SUCCESS(HttpStatus.OK, "ADDRESS_200", "주소 조회에 성공했습니다.");
 
-
-    private final HttpStatus httpStatus;
-    private final String code;
-    private final String message;
-
     // 응답 코드 상세 정보 return
-    @Override
-    public ReasonDto getReason() {
-        return ReasonDto.builder()
-                .httpStatus(this.httpStatus)
-                .code(this.code)
-                .message(this.message)
-                .build();
+    override fun getReason(): ReasonDto {
+        return ReasonDto(
+            httpStatus,
+            code,
+            message
+        )
     }
 }
+

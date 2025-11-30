@@ -1,21 +1,22 @@
-package org.example.devmarketbackend.global.controller;
+package org.example.devmarketbackend.global.controller
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
 
 @Tag(name = "health", description = "health check 관련 api 입니다.")
 @RestController
-public class RootController {
+class RootController {
     // JWT_SECRET를 인식 못함 -> 띄어쓰기 제거
     @Operation(summary = "cicd 확인", description = "cicd가 정상적으로 작동하고 있는지 확인하는 메서드입니다.")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON_200", description = "Success"),
-    })
+    @ApiResponses(
+        io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "COMMON_200", description = "Success")
+    )
     @GetMapping("/health")
-    public String healthCheck() {
-        return "OK";
+    fun healthCheck(): String {
+        return "OK"
     }
 }
+

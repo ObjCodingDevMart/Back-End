@@ -1,3 +1,4 @@
-package org.example.devmarketbackend.login.mapper;
+package org.example.devmarketbackend.login.mapper
 
-public class UserConverter {}
+class UserConverter
+

@@ -1,42 +1,44 @@
-package org.example.devmarketbackend.global.config;
+package org.example.devmarketbackend.global.config
 
-//import io.swagger.v3.oas.annotations.servers.Server;
-
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springdoc.core.models.GroupedOpenApi;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.security.SecurityRequirement
+import io.swagger.v3.oas.models.security.SecurityScheme
+import org.springdoc.core.models.GroupedOpenApi
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
 @Configuration
-public class SwaggerConfig {
+class SwaggerConfig {
 
     @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Shop API")
-                        .version("1.0.0")
-                        .description("Shop API 명세서"))
-
-
-                .addSecurityItem(new SecurityRequirement().addList("Authorization"))
-                .schemaRequirement("Authorization", new SecurityScheme()
-                        .name("Authorization")
-                        .bearerFormat("JWT")
-                        .scheme("bearer")
-                        .type(SecurityScheme.Type.HTTP)
-                        .in(SecurityScheme.In.HEADER)
-                        .description("Access Token을 입력하세요."));
+    fun customOpenAPI(): OpenAPI {
+        return OpenAPI()
+            .info(
+                Info()
+                    .title("Shop API")
+                    .version("1.0.0")
+                    .description("Shop API 명세서")
+            )
+            .addSecurityItem(SecurityRequirement().addList("Authorization"))
+            .schemaRequirement(
+                "Authorization",
+                SecurityScheme()
+                    .name("Authorization")
+                    .bearerFormat("JWT")
+                    .scheme("bearer")
+                    .type(SecurityScheme.Type.HTTP)
+                    .`in`(SecurityScheme.In.HEADER)
+                    .description("Access Token을 입력하세요.")
+            )
     }
 
     @Bean
-    public GroupedOpenApi allGroup() {
+    fun allGroup(): GroupedOpenApi {
         return GroupedOpenApi.builder()
-                .group("All")
-                .pathsToMatch("/**")
-                .build();
+            .group("All")
+            .pathsToMatch("/**")
+            .build()
     }
 }
+

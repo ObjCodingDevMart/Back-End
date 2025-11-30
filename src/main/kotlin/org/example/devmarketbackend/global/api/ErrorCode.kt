@@ -1,12 +1,12 @@
-package org.example.devmarketbackend.global.api;
+package org.example.devmarketbackend.global.api
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus
 
-@Getter
-@AllArgsConstructor
-public enum ErrorCode implements BaseCode { // 실패
+enum class ErrorCode(
+    val httpStatus: HttpStatus,
+    private val code: String,
+    private val message: String
+) : BaseCode { // 실패
     // Common
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON_400", "잘못된 요청입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON_500", "서버 에러, 서버 개발자에게 문의하세요."),
@@ -48,21 +48,16 @@ public enum ErrorCode implements BaseCode { // 실패
     S3_FILE_EMPTY(HttpStatus.BAD_REQUEST, "S3_400", "업로드할 파일이 비어 있습니다."),
     S3_INVALID_FILE_TYPE(HttpStatus.BAD_REQUEST, "S3_401", "유효하지 않은 파일 형식입니다."),
 
-
     // User Address 관련 에러 코드 추가
     ADDRESS_NOT_FOUND(HttpStatus.NOT_FOUND, "ADDRESS_4041", "해당 사용자의 주소 정보를 찾을 수 없습니다.");
 
-    private final HttpStatus httpStatus;
-    private final String code;
-    private final String message;
-
     // 응답 코드 상세 정보 return
-    @Override
-    public ReasonDto getReason() {
-        return ReasonDto.builder()
-                .httpStatus(this.httpStatus)
-                .code(this.code)
-                .message(this.message)
-                .build();
+    override fun getReason(): ReasonDto {
+        return ReasonDto(
+            httpStatus,
+            code,
+            message
+        )
     }
 }
+

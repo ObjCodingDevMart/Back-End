@@ -1,28 +1,16 @@
-package org.example.devmarketbackend.login.dto;
+package org.example.devmarketbackend.login.dto
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema
 
-@Builder
-@NoArgsConstructor
-public class UserRequestDto {
-    @Schema(description = "UserReqDto")
-    @Getter
-    @AllArgsConstructor
-    public class UserReqDto{
-        @Schema(description = "이메일")
-        private String email;
+@Schema(description = "UserReqDto")
+data class UserReqDto(
+    @Schema(description = "이메일")
+    val email: String? = null,
 
-        @Schema(description = "id(username)")
-        private String username;
+    @Schema(description = "id(username)")
+    val username: String? = null,
 
-        @Schema(description = "social type")
-        private String providerId;
-    }
-
-}
-
+    @Schema(description = "social type")
+    val providerId: String? = null
+)
 

@@ -1,24 +1,22 @@
-package org.example.devmarketbackend.global.exception;
+package org.example.devmarketbackend.global.exception
 
-import likelion13th.codashop.global.api.BaseCode;
-import likelion13th.codashop.global.api.ReasonDto;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import org.example.devmarketbackend.global.api.BaseCode
+import org.example.devmarketbackend.global.api.ReasonDto
 
 // 공통 예외 처리
-@Getter
-@AllArgsConstructor
-public class GeneralException extends RuntimeException {
-
-    private final BaseCode code;
+class GeneralException(
+    private val code: BaseCode
+) : RuntimeException() {
 
     //예외 생성
-    public static GeneralException of(BaseCode code) {
-        return new GeneralException(code);
+    companion object {
+        fun of(code: BaseCode): GeneralException {
+            return GeneralException(code)
+        }
     }
 
     //예외 상세 정보
-    public ReasonDto getReason() {
-        return this.code.getReason();
-    }
+    val reason: ReasonDto
+        get() = this.code.getReason()
 }
+
