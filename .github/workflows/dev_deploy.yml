@@ -48,7 +48,8 @@ jobs:
       - name: Generate deployment package
         run: |
           mkdir -p deploy
-          cp build/libs/*.jar deploy/application.jar
+          BOOT_JAR=$(ls build/libs/*-SNAPSHOT.jar | head -n 1)
+          cp "$BOOT_JAR" deploy/application.jar
           cp Procfile deploy/Procfile
           cp .env deploy/.env
           cp -r .ebextensions_dev deploy/.ebextensions
