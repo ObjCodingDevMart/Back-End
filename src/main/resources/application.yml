@@ -11,8 +11,8 @@ spring:
           kakao:
             client-id: ${KAKAO_REST_API_KEY}
             client-secret: ${KAKAO_CLIENT_SECRET}
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-            #redirect-uri: http://coda-dev-env.eba-pdmadfde.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/kakao
+            #redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: http://coda-dev-env.eba-pdmadfde.ap-northeast-2.elasticbeanstalk.com/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             scope:
@@ -74,7 +74,7 @@ spring:
       mode: never
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       dialect: org.hibernate.dialect.MySQLDialect
       use_sql_comments: true
@@ -98,7 +98,7 @@ spring:
       mode: never
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       dialect: org.hibernate.dialect.MySQLDialect
       use_sql_comments: true

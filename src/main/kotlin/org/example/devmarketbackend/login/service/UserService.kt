@@ -5,9 +5,11 @@ import jakarta.servlet.http.HttpServletRequest
 import org.example.devmarketbackend.domain.User
 import org.example.devmarketbackend.global.api.ErrorCode
 import org.example.devmarketbackend.global.exception.GeneralException
+
 import org.example.devmarketbackend.login.auth.dto.JwtDto
 import org.example.devmarketbackend.login.auth.jwt.RefreshToken
 import org.example.devmarketbackend.login.auth.jwt.TokenProvider
+import org.example.devmarketbackend.login.auth.jwt.CustomUserDetails
 import org.example.devmarketbackend.login.auth.repository.RefreshTokenRepository
 import org.example.devmarketbackend.login.auth.service.JpaUserDetailsManager
 import org.example.devmarketbackend.repository.UserRepository
@@ -95,7 +97,7 @@ class UserService(
         println("UserDetailsManager 타입: ${manager.javaClass.name}")
 
         // 1. providerId 기반 사용자 로드 (Security용 UserDetails)
-        val details = manager.loadUserByUsername(providerId)
+        val details = loadOrCreateUserDetails(providerId)
 
         // 2. JWT 생성 (Access에 권한 포함, Refresh에는 권한 미포함)
         val jwt = tokenProvider.generateTokens(details)
@@ -120,9 +122,7 @@ class UserService(
 
         // 1. Authorization 헤더에서 Bearer 토큰 추출
         var accessToken = request.getHeader("Authorization")
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
-            accessToken = accessToken.substring(7)
-        }
+        accessToken = stripBearer(accessToken)
 
         // 2. (만료 허용) Claims 파싱으로 providerId(subject) 추출
         val claims = try {
@@ -138,39 +138,75 @@ class UserService(
             throw GeneralException.of(ErrorCode.TOKEN_INVALID)
         }
 
-        // 3. providerId로 사용자 조회
-        val user = findByProviderId(providerId)
-            .orElseGet {
-                println("[ERROR] providerId=$providerId 사용자 없음")
-                throw GeneralException.of(ErrorCode.USER_NOT_FOUND)
-            }
-        println("[STEP 3] User 조회 성공 (user_id=${user.id}, providerId=${user.providerId})")
+        return reissueByProviderId(providerId, null)
+    }
 
-        // 4. DB에 저장된 Refresh Token 조회
+    fun reissue(accessToken: String?, refreshToken: String?): JwtDto {
+        println("[STEP 1] 모바일/외부 토큰 재발급 요청")
+        val cleanedAccessToken = stripBearer(accessToken)
+
+        val claims = try {
+            tokenProvider.parseClaimsAllowExpired(cleanedAccessToken ?: "")
+        } catch (e: Exception) {
+            println("[ERROR] Access Token 파싱 실패: ${e.message}")
+            throw GeneralException.of(ErrorCode.TOKEN_INVALID)
+        }
+
+        val providerId = claims.subject
+        if (providerId.isNullOrEmpty()) {
+            throw GeneralException.of(ErrorCode.TOKEN_INVALID)
+        }
+
+        return reissueByProviderId(providerId, refreshToken)
+    }
+
+    private fun reissueByProviderId(providerId: String, expectedRefreshToken: String?): JwtDto {
+        val user = findByProviderId(providerId)
+            .orElseThrow {
+                println("[ERROR] providerId=$providerId 사용자 없음")
+                GeneralException.of(ErrorCode.USER_NOT_FOUND)
+            }
+
         val refreshTokenEntity = refreshTokenRepository.findByUser(user)
             .orElseThrow { GeneralException.of(ErrorCode.WRONG_REFRESH_TOKEN) }
 
-        // 5. Refresh Token 유효성 검증 (서명/만료 등)
+        expectedRefreshToken?.let {
+            if (refreshTokenEntity.refreshToken != it) {
+                throw GeneralException.of(ErrorCode.TOKEN_INVALID)
+            }
+        }
+
         if (!tokenProvider.validateToken(refreshTokenEntity.refreshToken ?: "")) {
-            // 만료/위조 등으로 무효 → DB에서 삭제 후 만료 에러
             refreshTokenRepository.deleteByUser(user)
             println("[ERROR] Refresh Token 만료 또는 무효 - 삭제 완료 (user_id=${user.id})")
             throw GeneralException.of(ErrorCode.TOKEN_EXPIRED)
         }
-        // (선택 강화) 주체 일치성 확인:
-        // Claims rtClaims = tokenProvider.parseClaims(refreshTokenEntity.getRefreshToken());
-        // if (!providerId.equals(rtClaims.getSubject())) { ... }
 
-        // 6. 새 Access/Refresh 발급 (회전)
-        val userDetails = manager.loadUserByUsername(providerId)
+        val userDetails = loadOrCreateUserDetails(providerId)
         val newJwt = tokenProvider.generateTokens(userDetails)
         println("[STEP 4] 새로운 Access/Refresh Token 발급 완료")
 
-        // 7. Refresh 토큰 교체 저장
         refreshTokenEntity.updateRefreshToken(newJwt.refreshToken ?: "", newJwt.ttl ?: 0L)
         refreshTokenRepository.save(refreshTokenEntity)
 
         return newJwt
+    }
+
+    private fun stripBearer(rawToken: String?): String? {
+        if (rawToken.isNullOrBlank()) return null
+        return rawToken.removePrefix("Bearer ").trim()
+    }
+
+    private fun loadOrCreateUserDetails(providerId: String): UserDetails {
+        if (!manager.userExists(providerId)) {
+            val newUser = User().apply {
+                this.providerId = providerId
+                this.usernickname = providerId
+                this.deletable = true
+            }
+            manager.createUser(CustomUserDetails(newUser))
+        }
+        return manager.loadUserByUsername(providerId)
     }
 
     // ============================================================

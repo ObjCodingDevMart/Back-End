@@ -33,6 +33,9 @@ class Item private constructor() : BaseEntity() {
     @ManyToMany(mappedBy = "items")
     val categories: MutableList<Category> = ArrayList()
 
+    @OneToMany(mappedBy = "item", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val reviews: MutableList<Review> = ArrayList()
+
     // 생성자
     constructor(
         itemname: String,

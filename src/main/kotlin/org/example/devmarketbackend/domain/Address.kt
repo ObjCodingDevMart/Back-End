@@ -15,3 +15,6 @@ class Address(
     var addressDetail: String = "한국항공대학교"
 )
 
+
+
+

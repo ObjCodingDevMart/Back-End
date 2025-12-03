@@ -43,6 +43,14 @@ enum class ErrorCode(
     ORDER_CANCEL_FAILED(HttpStatus.BAD_REQUEST, "ORDER_4001", "주문 취소에 실패했습니다."),
     ORDER_CREATE_FAILED(HttpStatus.BAD_REQUEST, "ORDER_4002", "주문 생성 요청이 잘못되었습니다."),
 
+    // Cart / Like / Review
+    CART_NOT_FOUND(HttpStatus.NOT_FOUND, "CART_4041", "해당 사용자의 장바구니가 존재하지 않습니다."),
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "CART_4042", "장바구니 항목이 존재하지 않습니다."),
+    CART_ITEM_INVALID(HttpStatus.BAD_REQUEST, "CART_4001", "장바구니 항목 정보가 잘못되었습니다."),
+    BOOKMARK_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "LIKE_4001", "이미 즐겨찾기에 등록된 상품입니다."),
+    BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "LIKE_4041", "해당 즐겨찾기를 찾을 수 없습니다."),
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW_4041", "해당 리뷰를 찾을 수 없습니다."),
+
     // S3
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3_500", "S3 업로드에 실패하였습니다."),
     S3_FILE_EMPTY(HttpStatus.BAD_REQUEST, "S3_400", "업로드할 파일이 비어 있습니다."),

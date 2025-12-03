@@ -43,7 +43,24 @@ enum class SuccessCode(
 
     // User Address 관련 응답 코드 추가
     ADDRESS_SAVE_SUCCESS(HttpStatus.CREATED, "ADDRESS_201", "주소 저장에 성공했습니다."),
-    ADDRESS_GET_SUCCESS(HttpStatus.OK, "ADDRESS_200", "주소 조회에 성공했습니다.");
+    ADDRESS_GET_SUCCESS(HttpStatus.OK, "ADDRESS_200", "주소 조회에 성공했습니다."),
+
+    // Cart
+    CART_GET_SUCCESS(HttpStatus.OK, "CART_2001", "장바구니 조회에 성공했습니다."),
+    CART_ITEM_ADD_SUCCESS(HttpStatus.CREATED, "CART_201", "장바구니에 상품이 담겼습니다."),
+    CART_ITEM_UPDATE_SUCCESS(HttpStatus.OK, "CART_2002", "장바구니 상품 수량이 변경되었습니다."),
+    CART_ITEM_REMOVE_SUCCESS(HttpStatus.OK, "CART_2003", "장바구니 상품이 제거되었습니다."),
+    CART_CLEAR_SUCCESS(HttpStatus.OK, "CART_2004", "장바구니가 초기화되었습니다."),
+
+    // LikeBookmark
+    LIKEBOOKMARK_ADD_SUCCESS(HttpStatus.CREATED, "LIKE_201", "즐겨찾기가 추가되었습니다."),
+    LIKEBOOKMARK_REMOVE_SUCCESS(HttpStatus.OK, "LIKE_2001", "즐겨찾기가 제거되었습니다."),
+    LIKEBOOKMARK_LIST_SUCCESS(HttpStatus.OK, "LIKE_2002", "즐겨찾기 목록을 조회했습니다."),
+
+    // Review
+    REVIEW_CREATE_SUCCESS(HttpStatus.CREATED, "REVIEW_201", "리뷰 등록에 성공했습니다."),
+    REVIEW_ITEM_LIST_SUCCESS(HttpStatus.OK, "REVIEW_2001", "상품별 리뷰 목록을 조회했습니다."),
+    REVIEW_USER_LIST_SUCCESS(HttpStatus.OK, "REVIEW_2002", "사용자 리뷰 목록을 조회했습니다.");
 
     // 응답 코드 상세 정보 return
     override fun getReason(): ReasonDto {
