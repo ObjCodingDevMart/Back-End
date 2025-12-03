@@ -9,8 +9,6 @@ import org.example.devmarketbackend.global.api.ApiResponse
 import org.example.devmarketbackend.global.api.ErrorCode
 import org.example.devmarketbackend.global.api.SuccessCode
 import org.example.devmarketbackend.global.exception.GeneralException
-import org.example.devmarketbackend.login.auth.jwt.CustomUserDetails
-import org.example.devmarketbackend.login.service.UserService
 import org.example.devmarketbackend.service.OrderService
 import org.slf4j.LoggerFactory
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -20,24 +18,26 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/orders")
 @Tag(name = "주문생성", description = "로그인한 사용자의 주문을 생성합니다.")
 class OrderController(
-    private val orderService: OrderService,
-    private val userService: UserService
+    private val orderService: OrderService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
+
+    private fun resolveUser(user: User?): User {
+        return user ?: throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+    }
 
     // 주문 생성
     @PostMapping
     @Operation(summary = "주문 생성", description = "로그인한 사용자의 주문을 생성합니다.")
     fun createOrder(
-        @AuthenticationPrincipal customUserDetails: CustomUserDetails,
+        @AuthenticationPrincipal user: User?,
         @RequestBody request: OrderCreateRequest
     ): ApiResponse<*> {
-        val user = userService.findByProviderId(customUserDetails.providerId)
-            .orElseThrow { GeneralException.of(ErrorCode.USER_NOT_FOUND) }
+        val currentUser = resolveUser(user)
 
         log.info("[STEP 1] 주문 생성 요청 수신...")
         return try {
-            val newOrder = orderService.createOrder(request, user)
+            val newOrder = orderService.createOrder(request, currentUser)
             log.info("[STEP 2] 주문 생성 성공")
             ApiResponse.onSuccess(SuccessCode.ORDER_CREATE_SUCCESS, newOrder)
         } catch (e: GeneralException) {
@@ -72,11 +72,10 @@ class OrderController(
     @GetMapping
     @Operation(summary = "모든 주문 조회", description = "로그인한 사용자의 모든 주문을 목록으로 조회합니다.")
     fun getAllOrders(
-        @AuthenticationPrincipal customUserDetails: CustomUserDetails
+        @AuthenticationPrincipal user: User?
     ): ApiResponse<*> {
-        val user = userService.findByProviderId(customUserDetails.providerId)
-            .orElseThrow { GeneralException.of(ErrorCode.USER_NOT_FOUND) }
-        val orders = orderService.getAllOrders(user)
+        val currentUser = resolveUser(user)
+        val orders = orderService.getAllOrders(currentUser)
         /*if (orders.isEmpty()) {
             return ApiResponse.onFailure(
                     ErrorCode.ORDER_NOT_FOUND,
