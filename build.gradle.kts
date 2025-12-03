@@ -31,6 +31,8 @@ extra["springCloudVersion"] = "2025.1.0"
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    testImplementation("io.projectreactor:reactor-test")
 
     //DataBase
     runtimeOnly("com.mysql:mysql-connector-j")
