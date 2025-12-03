@@ -68,7 +68,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 
     //kotlin
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.1")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
 
@@ -83,6 +83,15 @@ dependencyManagement {
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+    }
+}
+
+// Java 소스 디렉토리 추가 (Kotlin 디렉토리 내의 Java 파일 컴파일)
+sourceSets {
+    main {
+        java {
+            srcDirs("src/main/kotlin")
+        }
     }
 }
 
