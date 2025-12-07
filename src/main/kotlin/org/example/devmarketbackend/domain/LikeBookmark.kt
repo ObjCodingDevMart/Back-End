@@ -6,11 +6,11 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 
 @Entity
-@Table(name = "like")
-class LikeBookmark private constructor():BaseEntity() {
+@Table(name = "user_likes")
+class LikeBookmark protected constructor():BaseEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="like")
+    @Column(name="like_id")
     var id:Long? = null
 
     @ManyToOne(fetch = FetchType.LAZY)

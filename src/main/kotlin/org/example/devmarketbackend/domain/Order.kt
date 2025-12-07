@@ -6,7 +6,7 @@ import org.example.devmarketbackend.global.constant.OrderStatus
 
 @Entity
 @Table(name = "orders") // 예약어 회피
-class Order private constructor() : BaseEntity() {
+class Order protected constructor() : BaseEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

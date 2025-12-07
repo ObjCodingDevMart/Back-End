@@ -5,14 +5,14 @@ import jakarta.persistence.Embeddable
 
 @Embeddable
 class Address(
-    @Column(nullable = false)
-    var zipcode: String = "10540",
-    
-    @Column(nullable = false)
-    var address: String = "경기도 고양시 덕양구 항공대학로 76",
-    
-    @Column(nullable = false)
-    var addressDetail: String = "한국항공대학교"
+    @Column(nullable = true)
+    var zipcode: String? = null,
+
+    @Column(nullable = true)
+    var address: String? = null,
+
+    @Column(name = "address_detail", nullable = true)
+    var addressDetail: String? = null
 )
 
 
