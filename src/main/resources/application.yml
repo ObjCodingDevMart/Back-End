@@ -87,7 +87,6 @@ spring:
       use_sql_comments: true
       default_batch_fetch_size: 1000
     show-sql: true
-    format-sql: true
 
 ---
 # develop profile
@@ -111,5 +110,5 @@ spring:
       use_sql_comments: true
       default_batch_fetch_size: 1000
     show-sql: true
-    format-sql: true
+
 
