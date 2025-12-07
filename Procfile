@@ -1,2 +1,1 @@
-web: appstart
-
+web: java -jar application.jar
