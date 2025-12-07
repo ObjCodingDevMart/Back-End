@@ -19,7 +19,6 @@ jobs:
         run: |
           printf '%s' "${{ secrets.ENV }}" > .env
           chmod 600 .env
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4.0.0
         with:
@@ -45,7 +44,7 @@ jobs:
         run: echo "${{ steps.current-time.outputs.formattedTime }}"
         shell: bash
 
-      - name: Generate clean deployment package
+      - name: Generate deployment package
         run: |
           set -euxo pipefail
           rm -rf deploy
@@ -59,7 +58,6 @@ jobs:
           cd deploy
           rm -f deploy.zip
           zip -r deploy.zip .
-
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v20 # 오류 뜨는 이유: EB 이름, 환경 이름 안 적어서...
         with:
