@@ -31,7 +31,7 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean bootJar -x test
         shell: bash
 
       - name: Get current time
@@ -47,8 +47,9 @@ jobs:
 
       - name: Generate deployment package
         run: |
+          rm -rf deploy
           mkdir -p deploy
-          BOOT_JAR=$(ls build/libs/*-SNAPSHOT.jar | head -n 1)
+          BOOT_JAR=$(ls -t build/libs/*.jar | head -n 1)
           cp "$BOOT_JAR" deploy/application.jar
           cp Procfile deploy/Procfile
           cp .env deploy/.env
