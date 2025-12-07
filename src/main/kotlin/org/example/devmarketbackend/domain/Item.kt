@@ -5,7 +5,7 @@ import org.example.devmarketbackend.domain.entity.BaseEntity
 
 @Entity
 @Table(name = "item")
-class Item private constructor() : BaseEntity() {
+class Item protected constructor() : BaseEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

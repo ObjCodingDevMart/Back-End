@@ -4,6 +4,7 @@ import io.jsonwebtoken.JwtException
 import org.example.devmarketbackend.domain.User
 import org.example.devmarketbackend.global.api.ErrorCode
 import org.example.devmarketbackend.global.exception.GeneralException
+import org.example.devmarketbackend.domain.Address
 import org.example.devmarketbackend.login.auth.jwt.JwtTokenProvider
 import org.example.devmarketbackend.login.auth.jwt.RefreshToken
 import org.example.devmarketbackend.login.auth.jwt.RefreshTokenRepository
@@ -41,6 +42,7 @@ class LoginService(
                         usernickname = resolved.nickname
                         userProfileUrl = resolved.profileUrl
                         email = resolved.email
+                        updateAddress(Address())
                     }
                 )
             }
@@ -79,7 +81,7 @@ class LoginService(
 
         val providerId = try {
             jwtTokenProvider.getSubject(request.accessToken, allowExpired = true)
-        } catch (ex: JwtException) {
+        } catch (_: JwtException) {
             throw GeneralException.of(ErrorCode.TOKEN_INVALID)
         }
 

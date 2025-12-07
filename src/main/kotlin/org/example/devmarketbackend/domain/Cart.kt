@@ -6,7 +6,7 @@ import java.util.ArrayList
 
 @Entity
 @Table(name = "carts")
-class Cart private constructor() : BaseEntity() {
+class Cart protected constructor() : BaseEntity() {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
