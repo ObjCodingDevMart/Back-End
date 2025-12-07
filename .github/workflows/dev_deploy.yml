@@ -30,7 +30,7 @@ jobs:
         shell: bash
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean bootJar -x test
         shell: bash
 
       - name: Get current time
@@ -46,14 +46,18 @@ jobs:
 
       - name: Generate deployment package
         run: |
+          set -euxo pipefail
+          rm -rf deploy
           mkdir -p deploy
-          BOOT_JAR=$(ls build/libs/*-SNAPSHOT.jar | head -n 1)
+          BOOT_JAR=$(ls -t build/libs/*.jar | head -n 1)
           cp "$BOOT_JAR" deploy/application.jar
           cp Procfile deploy/Procfile
           cp .env deploy/.env
           cp -r .ebextensions_dev deploy/.ebextensions
           cp -r .platform deploy/.platform
-          cd deploy && zip -r deploy.zip .
+          cd deploy
+          rm -f deploy.zip
+          zip -r deploy.zip .
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v20 # 오류 뜨는 이유: EB 이름, 환경 이름 안 적어서...
         with:
