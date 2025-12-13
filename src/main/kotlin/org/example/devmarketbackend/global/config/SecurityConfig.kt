@@ -81,8 +81,8 @@ class SecurityConfig(
         configuration.allowedOrigins = listOf(
             "http://localhost:3000",
             "https://coda-likelion.netlify.app/",
-            "http://localhost:8080"
-            // "아기 사자 백엔드 배포 주소",
+            "http://localhost:8080",
+            "http://coda-dev-env.eba-pdmadfde.ap-northeast-2.elasticbeanstalk.com"
         )
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         configuration.allowedHeaders = listOf("Authorization", "Content-Type")
