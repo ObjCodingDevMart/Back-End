@@ -30,10 +30,38 @@ class LoginService(
     private val kakaoClient: KakaoClient
 ) {
 
+    /**
+     * 모바일 앱에서 카카오 액세스 토큰을 받아 로그인 처리
+     */
     @Transactional
     fun loginWithKakao(request: MobileLoginRequest): AuthTokenResponse {
         val resolved = resolveUserInfo(request)
+        return loginWithUserInfo(resolved)
+    }
 
+    /**
+     * 웹 OAuth2 플로우에서 이미 파싱된 사용자 정보로 로그인 처리
+     */
+    @Transactional
+    fun loginWithOAuth2UserInfo(
+        providerId: String,
+        nickname: String,
+        profileUrl: String?,
+        email: String?
+    ): AuthTokenResponse {
+        val resolved = ResolvedUserInfo(
+            providerId = providerId,
+            nickname = nickname,
+            profileUrl = profileUrl,
+            email = email
+        )
+        return loginWithUserInfo(resolved)
+    }
+
+    /**
+     * 사용자 정보로 로그인 처리하는 공통 메서드
+     */
+    private fun loginWithUserInfo(resolved: ResolvedUserInfo): AuthTokenResponse {
         val user = userRepository.findByProviderId(resolved.providerId)
             .orElseGet {
                 userRepository.save(
