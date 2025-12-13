@@ -108,27 +108,13 @@ class LoginService(
     }
 
     private fun resolveUserInfo(request: MobileLoginRequest): ResolvedUserInfo {
-        request.kakaoAccessToken?.takeIf { it.isNotBlank() }?.let { token ->
-            val kakaoUser = kakaoClient.fetchUserInfo(token)
-            val nickname = request.userNickname ?: kakaoUser.properties?.nickname ?: "KakaoUser"
-            val profileUrl = request.userProfileUrl ?: kakaoUser.properties?.profileImageUrl
-            val email = request.email ?: kakaoUser.kakaoAccount?.email
-            return ResolvedUserInfo(
-                providerId = kakaoUser.id.toString(),
-                nickname = nickname,
-                profileUrl = profileUrl,
-                email = email
-            )
-        }
-
-        val providerId = request.providerId?.takeIf { it.isNotBlank() }
-            ?: throw GeneralException.of(ErrorCode.BAD_REQUEST)
-        val nickname = request.userNickname ?: "KakaoUser"
+        val kakaoUser = kakaoClient.fetchUserInfo(request.kakaoAccessToken)
+        
         return ResolvedUserInfo(
-            providerId = providerId,
-            nickname = nickname,
-            profileUrl = request.userProfileUrl,
-            email = request.email
+            providerId = kakaoUser.id.toString(),
+            nickname = kakaoUser.properties?.nickname ?: "KakaoUser",
+            profileUrl = kakaoUser.properties?.profileImageUrl,
+            email = kakaoUser.kakaoAccount?.email
         )
     }
 
