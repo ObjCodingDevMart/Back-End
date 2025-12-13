@@ -39,7 +39,7 @@ class User : BaseEntity() {
     @Column(nullable = false)
     var recentTotal: Int = 0
 
-    @Column(nullable = true)
+    @Column(name = "user_profile_url", nullable = true)
     var userProfileUrl: String? = null
 
     // Refresh Token 관계 설정 (1:1)
