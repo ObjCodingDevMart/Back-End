@@ -5,7 +5,6 @@ import org.example.devmarketbackend.global.api.ApiResponse
 import org.example.devmarketbackend.global.api.SuccessCode
 import org.example.devmarketbackend.global.api.ErrorCode
 import org.example.devmarketbackend.global.exception.GeneralException
-import org.example.devmarketbackend.login.dto.request.MobileLoginRequest
 import org.example.devmarketbackend.login.service.LoginService
 import org.springframework.http.MediaType
 import org.springframework.security.core.Authentication
@@ -40,13 +39,11 @@ class OAuth2SuccessHandler(
         val profileUrl = properties["profile_image"]?.toString()
         val email = kakaoAccount?.get("email")?.toString()
 
-        val tokens = loginService.loginWithKakao(
-            MobileLoginRequest(
-                providerId = providerId,
-                userNickname = nickname,
-                userProfileUrl = profileUrl,
-                email = email
-            )
+        val tokens = loginService.loginWithOAuth2UserInfo(
+            providerId = providerId,
+            nickname = nickname,
+            profileUrl = profileUrl,
+            email = email
         )
 
         response.contentType = MediaType.APPLICATION_JSON_VALUE
