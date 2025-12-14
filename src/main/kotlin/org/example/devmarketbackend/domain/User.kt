@@ -43,11 +43,11 @@ class User : BaseEntity() {
     var userProfileUrl: String? = null
 
     // Refresh Token 관계 설정 (1:1)
-    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var auth: RefreshToken? = null
 
     // 장바구니 (사용자당 하나, 삭제 시 물품도 지워짐)
-    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var cart: Cart? = null
 
     // 주소 정보 (임베디드 타입)
@@ -57,7 +57,7 @@ class User : BaseEntity() {
     @Column(nullable = true)
     var email: String? = null
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var Reviews: MutableList<Review> = ArrayList()
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)

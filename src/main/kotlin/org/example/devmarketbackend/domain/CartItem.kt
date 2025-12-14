@@ -13,7 +13,7 @@ class CartItem protected constructor() : BaseEntity() {
     var id: Long? = null
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cart_id")
     var cart: Cart? = null
         internal set

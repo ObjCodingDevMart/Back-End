@@ -30,10 +30,10 @@ class Item protected constructor() : BaseEntity() {
     var s3ImgKey: String? = null
 
     // 카테고리와 연관관계 설정
-    @ManyToMany(mappedBy = "items")
+    @ManyToMany(mappedBy = "items", fetch = FetchType.EAGER)
     var categories: MutableList<Category> = ArrayList()
 
-    @OneToMany(mappedBy = "item", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "item", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var reviews: MutableList<Review> = ArrayList()
 
     // 생성자
