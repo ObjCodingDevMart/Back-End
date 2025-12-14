@@ -24,7 +24,7 @@ class Category protected constructor() : BaseEntity() {
         joinColumns = [JoinColumn(name = "category_id")],
         inverseJoinColumns = [JoinColumn(name = "item_id")]
     )
-    val items: MutableList<Item> = ArrayList()
+    var items: MutableList<Item> = ArrayList()
 
     // 생성자
     constructor(categoryName: String) : this() {
