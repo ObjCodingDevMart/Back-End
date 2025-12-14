@@ -7,6 +7,7 @@ data class UserInfoResponse(
     val usernickname: String?,
     val recentTotal: Int,
     val maxMilege: Int,
+    val userLikeCnt: Int?,
     val orderStatusCounts: Map<OrderStatus, Int>
 ) {
     companion object {
@@ -24,6 +25,7 @@ data class UserInfoResponse(
                 user.usernickname,
                 user.recentTotal,
                 user.maxMileage,
+                user.likeBookmark.size,
                 orderStatusCounts
             )
         }
