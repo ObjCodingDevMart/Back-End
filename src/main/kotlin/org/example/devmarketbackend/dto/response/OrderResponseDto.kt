@@ -7,9 +7,7 @@ import java.time.LocalDateTime
 data class OrderResponseDto(
     val orderId: Long?,
     val usernickname: String?,
-    val item_name: String?,
-    val item_brand: String?,
-    val item_url: String?,
+    val orderItem: ItemResponseDto,
     val quantity: Int,
     val totalPrice: Int,
     val finalPrice: Int,
@@ -22,9 +20,7 @@ data class OrderResponseDto(
             return OrderResponseDto(
                 order.id,
                 order.user?.usernickname,
-                order.item?.itemname,
-                order.item?.brand,
-                order.item?.imagePath,
+                ItemResponseDto.from(order.item!!),
                 order.quantity,
                 order.totalPrice,
                 order.finalPrice,
