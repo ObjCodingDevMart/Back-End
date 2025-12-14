@@ -66,7 +66,7 @@ class User : BaseEntity() {
 
     // 주문 정보 (1:N 관계)
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val orders: MutableList<Order> = ArrayList()
+    var orders: MutableList<Order> = ArrayList()
 
     fun updateAddress(address: Address) {
         this.address = address

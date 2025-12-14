@@ -14,9 +14,9 @@ abstract class BaseEntity {
 
     @CreationTimestamp
     @Column(updatable = false)
-    val createdAt: LocalDateTime? = null
+    var createdAt: LocalDateTime? = null
 
     @UpdateTimestamp
     @Column(insertable = false)
-    val updatedAt: LocalDateTime? = null
+    var updatedAt: LocalDateTime? = null
 }

@@ -19,7 +19,7 @@ class Cart protected constructor() : BaseEntity() {
         internal set
 
     @OneToMany(mappedBy = "cart", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val items: MutableList<CartItem> = ArrayList()
+    var items: MutableList<CartItem> = ArrayList()
 
     fun totalAmount(): Int {
         return items.sumOf { it.totalPrice() }

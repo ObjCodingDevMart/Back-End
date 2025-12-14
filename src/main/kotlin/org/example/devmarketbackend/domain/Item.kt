@@ -31,10 +31,10 @@ class Item protected constructor() : BaseEntity() {
 
     // 카테고리와 연관관계 설정
     @ManyToMany(mappedBy = "items")
-    val categories: MutableList<Category> = ArrayList()
+    var categories: MutableList<Category> = ArrayList()
 
     @OneToMany(mappedBy = "item", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val reviews: MutableList<Review> = ArrayList()
+    var reviews: MutableList<Review> = ArrayList()
 
     // 생성자
     constructor(
