@@ -60,12 +60,12 @@ class User : BaseEntity() {
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
     var Reviews: MutableList<Review> = ArrayList()
 
-    @OneToMany(mappedBy = "user",cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var likeBookmark: MutableList<LikeBookmark> = ArrayList()
 
 
     // 주문 정보 (1:N 관계)
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var orders: MutableList<Order> = ArrayList()
 
     fun updateAddress(address: Address) {
