@@ -17,7 +17,7 @@ class Category protected constructor() : BaseEntity() {
     var categoryName: String = ""
 
     // 아이템과의 관계 설정
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
     @JoinTable(
         name = "category_item",

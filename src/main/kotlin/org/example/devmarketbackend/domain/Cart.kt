@@ -13,12 +13,12 @@ class Cart protected constructor() : BaseEntity() {
     @Column(name = "cart_id")
     var id: Long? = null
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", unique = true)
     var user: User? = null
         internal set
 
-    @OneToMany(mappedBy = "cart", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "cart", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.EAGER)
     var items: MutableList<CartItem> = ArrayList()
 
     fun totalAmount(): Int {

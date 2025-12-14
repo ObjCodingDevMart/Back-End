@@ -13,12 +13,12 @@ class LikeBookmark protected constructor():BaseEntity() {
     @Column(name="like_id")
     var id:Long? = null
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="user_id",nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     var user: User? = null
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="item_id",nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     var item: Item? = null
