@@ -16,12 +16,14 @@ import org.springframework.stereotype.Service
 class CartService(
     private val cartRepository: CartRepository,
     private val cartItemService: CartItemService,
-    private val itemRepository: ItemRepository
+    private val itemRepository: ItemRepository,
+    private val userRepository: org.example.devmarketbackend.repository.UserRepository
 ) {
 
     @Transactional
     fun getCart(user: User): CartResponse {
-        val cart = getOrCreateCart(user)
+        val managedUser = resolveUser(user)
+        val cart = getOrCreateCart(managedUser)
         return CartResponse.from(cart)
     }
 
@@ -30,8 +32,9 @@ class CartService(
         if (quantity <= 0) {
             throw GeneralException.of(ErrorCode.CART_ITEM_INVALID)
         }
+        val managedUser = resolveUser(user)
         val item = findItemOrThrow(itemId)
-        val cart = getOrCreateCart(user)
+        val cart = getOrCreateCart(managedUser)
         cart.addItem(item, quantity)
         return CartResponse.from(cart)
     }
@@ -41,8 +44,9 @@ class CartService(
         if (quantity <= 0) {
             throw GeneralException.of(ErrorCode.CART_ITEM_INVALID)
         }
+        val managedUser = resolveUser(user)
         val cartItem = cartItemService.findById(cartItemId)
-        verifyOwnership(cartItem, user)
+        verifyOwnership(cartItem, managedUser)
         cartItem.changeQuantity(quantity)
         val cart = cartItem.cart ?: throw GeneralException.of(ErrorCode.CART_NOT_FOUND)
         return CartResponse.from(cart)
@@ -50,8 +54,9 @@ class CartService(
 
     @Transactional
     fun removeCartItem(user: User, cartItemId: Long): CartResponse {
+        val managedUser = resolveUser(user)
         val cartItem = cartItemService.findById(cartItemId)
-        verifyOwnership(cartItem, user)
+        verifyOwnership(cartItem, managedUser)
         val cart = cartItem.cart ?: throw GeneralException.of(ErrorCode.CART_NOT_FOUND)
         cart.removeItem(cartItem)
         return CartResponse.from(cart)
@@ -59,7 +64,8 @@ class CartService(
 
     @Transactional
     fun clearCart(user: User) {
-        val cart = findCartOrThrow(user)
+        val managedUser = resolveUser(user)
+        val cart = findCartOrThrow(managedUser)
         cart.clear()
     }
 
@@ -82,6 +88,16 @@ class CartService(
     private fun findCartOrThrow(user: User): Cart {
         return cartRepository.findByUser(user)
             .orElseThrow { GeneralException.of(ErrorCode.CART_NOT_FOUND) }
+    }
+    
+    private fun resolveUser(user: User): User {
+        val userId = user.id
+        return if (userId != null) {
+            userRepository.findById(userId)
+                .orElseThrow { GeneralException.of(ErrorCode.USER_NOT_FOUND) }
+        } else {
+            throw GeneralException.of(ErrorCode.USER_NOT_FOUND)
+        }
     }
 
     private fun findItemOrThrow(itemId: Long): Item {

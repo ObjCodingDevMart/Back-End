@@ -33,6 +33,9 @@ class OrderService(
     // 주문 생성
     @Transactional
     fun createOrder(request: OrderCreateRequest, user: User): OrderResponseDto {
+        // User를 managed 상태로 조회
+        val managedUser = resolveUser(user)
+        
         // 상품 조회
         val item = itemRepository.findById(request.itemId)
             .orElseThrow { GeneralException.of(ErrorCode.ITEM_NOT_FOUND) }
@@ -41,7 +44,7 @@ class OrderService(
         val totalPrice = item.price * request.quantity
         // 마일리지 유효성 검사
         val mileageToUse = request.mileageToUse
-        if (mileageToUse > user.maxMileage) {
+        if (mileageToUse > managedUser.maxMileage) {
             throw GeneralException.of(ErrorCode.INVALID_MILEAGE)
         }
 
@@ -49,19 +52,29 @@ class OrderService(
         val finalPrice = calculateFinalPrice(totalPrice, mileageToUse) // 최종 결제 금액
 
         //주문 생성과 동시에 배송 중으로 설정
-        val order = Order(user, item, request.quantity)
+        val order = Order(managedUser, item, request.quantity)
         order.totalPrice = totalPrice
         order.finalPrice = finalPrice
         order.status = OrderStatus.PROCESSING
         //사용자 마일리지 처리
-        user.useMileage(mileageToUse)
-        user.addMileage((finalPrice * 0.1).toInt())//결제 금액의 10% 마일리지 적립
+        managedUser.useMileage(mileageToUse)
+        managedUser.addMileage((finalPrice * 0.1).toInt())//결제 금액의 10% 마일리지 적립
         //최근 결제 금액 업데이트
-        user.updateRecentTotal(finalPrice)
-        //주문 저장
+        managedUser.updateRecentTotal(finalPrice)
+        //주문 저장 (User 변경사항은 @Transactional에 의해 자동 저장됨)
         orderRepository.save(order)
 
         return OrderResponseDto.from(order)
+    }
+    
+    private fun resolveUser(user: User): User {
+        val userId = user.id
+        return if (userId != null) {
+            userRepository.findById(userId)
+                .orElseThrow { GeneralException.of(ErrorCode.USER_NOT_FOUND) }
+        } else {
+            throw GeneralException.of(ErrorCode.USER_NOT_FOUND)
+        }
     }
 
     //개별 주문 조회
@@ -91,20 +104,23 @@ class OrderService(
         }
 
         val user = order.user ?: throw GeneralException.of(ErrorCode.USER_NOT_FOUND)
+        // User를 managed 상태로 조회
+        val managedUser = resolveUser(user)
+        
         // 회수해야할 마일리지보다 가지고 있는 마일리지가 적을 경우
-        if (user.maxMileage < (order.finalPrice * 0.1).toInt()) {
+        if (managedUser.maxMileage < (order.finalPrice * 0.1).toInt()) {
             throw GeneralException.of(ErrorCode.INVALID_MILEAGE)
         }
         //주문 상태 변경
         order.status = OrderStatus.CANCEL
         // 결제 시에 적립되었던 마일리지 차감 ( 결제 금액의 10%)
-        user.useMileage((order.finalPrice * 0.1).toInt())
+        managedUser.useMileage((order.finalPrice * 0.1).toInt())
 
         //마일리지 환불
-        user.addMileage(order.totalPrice - order.finalPrice)
+        managedUser.addMileage(order.totalPrice - order.finalPrice)
 
         // 주문 취소 시, 해당 주문의 총 결제 금액 차감
-        user.updateRecentTotal(-order.totalPrice)
+        managedUser.updateRecentTotal(-order.totalPrice)
     }
 
     @Scheduled(fixedRate = 3600000) // 1시간마다 실행
