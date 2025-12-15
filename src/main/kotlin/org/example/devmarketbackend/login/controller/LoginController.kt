@@ -3,6 +3,7 @@ package org.example.devmarketbackend.login.controller
 import jakarta.validation.Valid
 import org.example.devmarketbackend.global.api.ApiResponse
 import org.example.devmarketbackend.global.api.SuccessCode
+import org.example.devmarketbackend.global.exception.GeneralException
 import org.example.devmarketbackend.login.dto.request.MobileLoginRequest
 import org.example.devmarketbackend.login.dto.request.MobileTokenRefreshRequest
 import org.example.devmarketbackend.login.dto.response.AuthTokenResponse
@@ -29,12 +30,12 @@ class LoginController(
             val tokens = loginService.loginWithKakao(request)
             log.info("[STEP 2] 로그인 성공")
             ApiResponse.onSuccess(SuccessCode.USER_LOGIN_SUCCESS, tokens)
-        } catch (e: org.example.devmarketbackend.global.exception.GeneralException) {
+        } catch (e: GeneralException) {
             log.error("❌ [ERROR] 로그인 실패: {}", e.reason.message)
             throw e
         } catch (e: Exception) {
             log.error("❌ [ERROR] 알 수 없는 예외 발생: {}", e.message)
-            throw org.example.devmarketbackend.global.exception.GeneralException.of(org.example.devmarketbackend.global.api.ErrorCode.USER_NOT_AUTHENTICATED)
+            throw GeneralException.of(org.example.devmarketbackend.global.api.ErrorCode.USER_NOT_AUTHENTICATED)
         }
     }
 
@@ -45,12 +46,12 @@ class LoginController(
             val tokens = loginService.reissue(request)
             log.info("[STEP 2] 토큰 재발급 성공")
             ApiResponse.onSuccess(SuccessCode.USER_REISSUE_SUCCESS, tokens)
-        } catch (e: org.example.devmarketbackend.global.exception.GeneralException) {
+        } catch (e: GeneralException) {
             log.error("❌ [ERROR] 토큰 재발급 실패: {}", e.reason.message)
             throw GeneralException.of(org.example.devmarketbackend.global.api.ErrorCode.USER_NOT_AUTHENTICATED)
         } catch (e: Exception) {
             log.error("❌ [ERROR] 알 수 없는 예외 발생: {}", e.message)
-            throw org.example.devmarketbackend.global.exception.GeneralException.of(org.example.devmarketbackend.global.api.ErrorCode.USER_NOT_AUTHENTICATED)
+            throw GeneralException.of(org.example.devmarketbackend.global.api.ErrorCode.USER_NOT_AUTHENTICATED)
         }
     }
 }
