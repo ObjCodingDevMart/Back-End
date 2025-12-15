@@ -3,7 +3,6 @@ package org.example.devmarketbackend.service
 import org.springframework.transaction.annotation.Transactional
 import org.example.devmarketbackend.dto.request.OrderCreateRequest
 import org.example.devmarketbackend.dto.response.OrderResponseDto
-import org.example.devmarketbackend.domain.Item
 import org.example.devmarketbackend.domain.Order
 import org.example.devmarketbackend.domain.User
 import org.example.devmarketbackend.global.api.ErrorCode
@@ -11,6 +10,7 @@ import org.example.devmarketbackend.global.constant.OrderStatus
 import org.example.devmarketbackend.global.exception.GeneralException
 import org.example.devmarketbackend.repository.ItemRepository
 import org.example.devmarketbackend.repository.OrderRepository
+import org.example.devmarketbackend.repository.UserRepository
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -18,7 +18,7 @@ import java.time.LocalDateTime
 @Service
 class OrderService(
     private val orderRepository: OrderRepository,
-    private val userRepository: org.example.devmarketbackend.repository.UserRepository,
+    private val userRepository: UserRepository,
     private val itemRepository: ItemRepository
 ) {
     //마일리지 적용 후 가격에 대한 로직
