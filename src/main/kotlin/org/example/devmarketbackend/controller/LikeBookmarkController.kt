@@ -51,10 +51,10 @@ class LikeBookmarkController(
         @AuthenticationPrincipal user: User?,
         @RequestBody request: LikeBookmarkRmRequest
     ): ApiResponse<*> {
-        log.info("[STEP 1] 즐겨찾기 삭제 요청: itemId={}", request.bookmarkId)
+        log.info("[STEP 1] 즐겨찾기 삭제 요청: itemId={}", request.itemId)
         return try {
             val currentUser = resolveUser(user)
-            likeBookmarkService.removeBookmark(request.bookmarkId)
+            likeBookmarkService.removeBookmark(currentUser, request.itemId)
             log.info("[STEP 2] 즐겨찾기 삭제 성공")
             ApiResponse.onSuccess(SuccessCode.LIKEBOOKMARK_REMOVE_SUCCESS, null)
         } catch (e: GeneralException) {
