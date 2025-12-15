@@ -29,8 +29,6 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
   jpa:
-    hibernate:
-      ddl-auto: create
     show-sql: false
     properties:
       hibernate:
