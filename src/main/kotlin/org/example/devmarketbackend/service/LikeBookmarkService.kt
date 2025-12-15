@@ -35,9 +35,10 @@ class LikeBookmarkService(
     fun removeBookmark(user: User, itemId: Long) {
         val managedUser = resolveUser(user)
         val item = findItemOrThrow(itemId)
-        val bookmark = likeBookmarkRepository.findByUserAndItem(managedUser, item)
-            .orElseThrow { GeneralException.of(ErrorCode.BOOKMARK_NOT_FOUND) }
-        likeBookmarkRepository.delete(bookmark)
+        val deleted = likeBookmarkRepository.deleteByUserAndItem(managedUser, item)
+        if (deleted == 0L) {
+            throw GeneralException.of(ErrorCode.BOOKMARK_NOT_FOUND)
+        }
     }
 
     @Transactional

@@ -11,5 +11,6 @@ import java.util.Optional
 interface LikeBookmarkRepository : JpaRepository<LikeBookmark, Long> {
     fun findAllByUser(user: User): List<LikeBookmark>
     fun findByUserAndItem(user: User, item: Item): Optional<LikeBookmark>
+    fun deleteByUserAndItem(user: User, item: Item): Long
 }
 
