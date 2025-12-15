@@ -8,6 +8,8 @@ data class ItemCreateRequest(
     val brand: String,
     @JsonProperty("isNew")
     val isNew: Boolean,
-    val categoryIds: List<Long>
+    val categoryIds: List<Long>,
+    val productDetailImgUrl: String? = null,
+    val productDetailContent: String? = null
 )
 
