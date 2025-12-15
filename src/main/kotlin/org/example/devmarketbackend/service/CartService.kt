@@ -10,6 +10,7 @@ import org.example.devmarketbackend.global.api.ErrorCode
 import org.example.devmarketbackend.global.exception.GeneralException
 import org.example.devmarketbackend.repository.CartRepository
 import org.example.devmarketbackend.repository.ItemRepository
+import org.example.devmarketbackend.repository.UserRepository
 import org.springframework.stereotype.Service
 
 @Service
@@ -17,7 +18,7 @@ class CartService(
     private val cartRepository: CartRepository,
     private val cartItemService: CartItemService,
     private val itemRepository: ItemRepository,
-    private val userRepository: org.example.devmarketbackend.repository.UserRepository
+    private val userRepository: UserRepository
 ) {
 
     @Transactional
@@ -36,6 +37,8 @@ class CartService(
         val item = findItemOrThrow(itemId)
         val cart = getOrCreateCart(managedUser)
         cart.addItem(item, quantity)
+        // 명시적으로 저장해 변경 사항을 즉시 반영
+        cartRepository.save(cart)
         return CartResponse.from(cart)
     }
 
@@ -49,6 +52,7 @@ class CartService(
         verifyOwnership(cartItem, managedUser)
         cartItem.changeQuantity(quantity)
         val cart = cartItem.cart ?: throw GeneralException.of(ErrorCode.CART_NOT_FOUND)
+        cartRepository.save(cart)
         return CartResponse.from(cart)
     }
 
@@ -59,6 +63,7 @@ class CartService(
         verifyOwnership(cartItem, managedUser)
         val cart = cartItem.cart ?: throw GeneralException.of(ErrorCode.CART_NOT_FOUND)
         cart.removeItem(cartItem)
+        cartRepository.save(cart)
         return CartResponse.from(cart)
     }
 
@@ -67,6 +72,7 @@ class CartService(
         val managedUser = resolveUser(user)
         val cart = findCartOrThrow(managedUser)
         cart.clear()
+        cartRepository.save(cart)
     }
 
     private fun verifyOwnership(cartItem: CartItem, user: User) {

@@ -7,11 +7,12 @@ import org.example.devmarketbackend.domain.Address
 import org.example.devmarketbackend.domain.User
 import org.example.devmarketbackend.global.api.ErrorCode
 import org.example.devmarketbackend.global.exception.GeneralException
+import org.example.devmarketbackend.repository.UserRepository
 import org.springframework.stereotype.Service
 
 @Service
 class UserAddressService(
-    private val userRepository: org.example.devmarketbackend.repository.UserRepository
+    private val userRepository: UserRepository
 ) {
     //내 주소 조회
     @Transactional
@@ -29,7 +30,7 @@ class UserAddressService(
             request.address,
             request.addressDetail
         )
-        managedUser.updateAddress(address)
+        managedUser.address = address
         return AddressResponse.from(managedUser.address)
     }
     
