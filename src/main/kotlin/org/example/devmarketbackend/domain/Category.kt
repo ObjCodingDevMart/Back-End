@@ -20,9 +20,9 @@ class Category protected constructor() : BaseEntity() {
     @ManyToMany(fetch = FetchType.EAGER)
     @JsonIgnore
     @JoinTable(
-        name = "category_item",
-        joinColumns = [JoinColumn(name = "category_id")],
-        inverseJoinColumns = [JoinColumn(name = "item_id")]
+        name = "item_categories",
+        joinColumns = [JoinColumn(name = "category_id", referencedColumnName = "category_id")],
+        inverseJoinColumns = [JoinColumn(name = "item_id", referencedColumnName = "id")]
     )
     var items: MutableList<Item> = ArrayList()
 
