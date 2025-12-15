@@ -9,7 +9,9 @@ data class ItemResponseDto(
     val imagePath: String?,
     val brand: String,
     val isNew: Boolean,
-    val categories: List<String>
+    val categories: List<String>,
+    val productDetailImgUrl: String? = null,
+    val productDetailContent: String? = null
 ) {
     companion object {
         fun from(item: Item): ItemResponseDto {
@@ -20,7 +22,9 @@ data class ItemResponseDto(
                 item.imagePath,
                 item.brand,
                 item.isNew,
-                item.categories.map { it.categoryName }
+                item.categories.map { it.categoryName },
+                item.itemDetail?.productDetailImgUrl,
+                item.itemDetail?.productDetailContent
             )
         }
     }

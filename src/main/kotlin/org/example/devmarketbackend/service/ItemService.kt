@@ -45,6 +45,14 @@ class ItemService(
             request.brand,
             request.isNew
         )
+        // ItemDetail 설정
+        if (request.productDetailImgUrl != null || request.productDetailContent != null) {
+            val itemDetail = org.example.devmarketbackend.domain.ItemDetail().apply {
+                productDetailImgUrl = request.productDetailImgUrl
+                productDetailContent = request.productDetailContent
+            }
+            item.itemDetail = itemDetail
+        }
         val categories = categoryRepository.findAllById(request.categoryIds)
         // ManyToMany 관계: Category가 주인(owner)이므로 Category의 items에 추가
         categories.forEach { category ->
@@ -77,6 +85,19 @@ class ItemService(
         item.imagePath = s3Result.url
         item.s3ImgKey = s3Result.itemName
         item.isNew = request.isNew
+        
+        // ItemDetail 설정
+        if (request.productDetailImgUrl != null || request.productDetailContent != null) {
+            if (item.itemDetail == null) {
+                item.itemDetail = org.example.devmarketbackend.domain.ItemDetail()
+            }
+            item.itemDetail?.apply {
+                productDetailImgUrl = request.productDetailImgUrl
+                productDetailContent = request.productDetailContent
+            }
+        } else {
+            item.itemDetail = null
+        }
         
         // 기존 카테고리 관계 제거
         item.categories.forEach { category ->

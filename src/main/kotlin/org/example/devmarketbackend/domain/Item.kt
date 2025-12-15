@@ -29,6 +29,10 @@ class Item protected constructor() : BaseEntity() {
     @Column(nullable = true)
     var s3ImgKey: String? = null
 
+    // 상품 상세 정보
+    @Embedded
+    var itemDetail: ItemDetail? = null
+
     // 카테고리와 연관관계 설정
     @ManyToMany(mappedBy = "items", fetch = FetchType.EAGER)
     var categories: MutableList<Category> = ArrayList()
