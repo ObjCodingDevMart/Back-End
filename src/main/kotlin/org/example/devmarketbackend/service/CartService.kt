@@ -1,6 +1,6 @@
 package org.example.devmarketbackend.service
 
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import org.example.devmarketbackend.domain.Cart
 import org.example.devmarketbackend.domain.CartItem
 import org.example.devmarketbackend.domain.User

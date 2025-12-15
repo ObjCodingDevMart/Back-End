@@ -16,15 +16,21 @@ class KakaoClient(
 ) {
 
     fun fetchUserInfo(accessToken: String): KakaoUserInfo {
+        if (accessToken.isBlank()) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
+
         return try {
             webClient.get()
                 .uri(USER_INFO_URL)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
                 .retrieve()
                 .bodyToMono(KakaoUserInfo::class.java)
-                .block() ?: throw GeneralException.of(ErrorCode.OAUTH2_PROCESS_FAILED)
+                .block() ?: throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
         } catch (ex: WebClientResponseException) {
-            throw GeneralException.of(ErrorCode.OAUTH2_PROCESS_FAILED)
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        } catch (ex: Exception) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
         }
     }
 }
