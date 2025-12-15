@@ -6,6 +6,7 @@ import org.example.devmarketbackend.global.exception.GeneralException
 
 data class ReviewResponse(
     val reviewId: Long?,
+    val nickname: String?,
     val rating: Int?,
     val content: String?,
     val imgUrl: String?,
@@ -17,6 +18,7 @@ data class ReviewResponse(
             val item = review.item ?: throw GeneralException.of(ErrorCode.ITEM_NOT_FOUND)
             return ReviewResponse(
                 review.id,
+                review.user?.usernickname,
                 review.rating,
                 review.content,
                 review.imgUrl,
