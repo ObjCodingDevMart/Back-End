@@ -81,7 +81,7 @@ spring:
       mode: never
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       dialect: org.hibernate.dialect.MySQLDialect
       use_sql_comments: true
@@ -104,7 +104,7 @@ spring:
       mode: never
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       dialect: org.hibernate.dialect.MySQLDialect
       use_sql_comments: true
