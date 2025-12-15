@@ -1,6 +1,6 @@
 package org.example.devmarketbackend.service
 
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import org.example.devmarketbackend.dto.request.OrderCreateRequest
 import org.example.devmarketbackend.dto.response.OrderResponseDto
 import org.example.devmarketbackend.domain.Item

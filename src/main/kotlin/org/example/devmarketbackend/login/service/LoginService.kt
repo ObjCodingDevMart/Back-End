@@ -35,8 +35,14 @@ class LoginService(
      */
     @Transactional
     fun loginWithKakao(request: MobileLoginRequest): AuthTokenResponse {
-        val resolved = resolveUserInfo(request)
-        return loginWithUserInfo(resolved)
+        return try {
+            val resolved = resolveUserInfo(request)
+            loginWithUserInfo(resolved)
+        } catch (e: GeneralException) {
+            throw e
+        } catch (e: Exception) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
     }
 
     /**
@@ -49,19 +55,33 @@ class LoginService(
         profileUrl: String?,
         email: String?
     ): AuthTokenResponse {
-        val resolved = ResolvedUserInfo(
-            providerId = providerId,
-            nickname = nickname,
-            profileUrl = profileUrl,
-            email = email
-        )
-        return loginWithUserInfo(resolved)
+        if (providerId.isBlank()) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
+
+        return try {
+            val resolved = ResolvedUserInfo(
+                providerId = providerId,
+                nickname = nickname,
+                profileUrl = profileUrl,
+                email = email
+            )
+            loginWithUserInfo(resolved)
+        } catch (e: GeneralException) {
+            throw e
+        } catch (e: Exception) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
     }
 
     /**
      * 사용자 정보로 로그인 처리하는 공통 메서드
      */
     private fun loginWithUserInfo(resolved: ResolvedUserInfo): AuthTokenResponse {
+        if (resolved.providerId.isBlank()) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
+
         val user = userRepository.findByProviderId(resolved.providerId)
             .orElseGet {
                 userRepository.save(
@@ -81,43 +101,49 @@ class LoginService(
             email = resolved.email
         }
 
-        val accessToken = jwtTokenProvider.generateAccessToken(user)
-        val refreshToken = jwtTokenProvider.generateRefreshToken(user.providerId)
+        return try {
+            val accessToken = jwtTokenProvider.generateAccessToken(user)
+            val refreshToken = jwtTokenProvider.generateRefreshToken(user.providerId)
 
-        val refreshEntity = user.auth ?: RefreshToken().apply { this.user = user }
-        refreshEntity.refreshToken = refreshToken
-        refreshEntity.expiredAt = jwtTokenProvider.getExpiration(refreshToken).toLocalDateTime()
-        refreshTokenRepository.save(refreshEntity)
-        user.auth = refreshEntity
+            val refreshEntity = user.auth ?: RefreshToken().apply { this.user = user }
+            refreshEntity.refreshToken = refreshToken
+            refreshEntity.expiredAt = jwtTokenProvider.getExpiration(refreshToken).toLocalDateTime()
+            refreshTokenRepository.save(refreshEntity)
+            user.auth = refreshEntity
 
-        return AuthTokenResponse(
-            accessToken = accessToken,
-            refreshToken = refreshToken,
-            accessTokenExpiresIn = jwtTokenProvider.accessTokenValidityMs,
-            refreshTokenExpiresIn = jwtTokenProvider.refreshTokenValidityMs
-        )
+            AuthTokenResponse(
+                accessToken = accessToken,
+                refreshToken = refreshToken,
+                accessTokenExpiresIn = jwtTokenProvider.accessTokenValidityMs,
+                refreshTokenExpiresIn = jwtTokenProvider.refreshTokenValidityMs
+            )
+        } catch (e: JwtException) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        } catch (e: Exception) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
     }
 
     @Transactional
     fun reissue(request: MobileTokenRefreshRequest): AuthTokenResponse {
         val refreshTokenEntity = refreshTokenRepository.findByRefreshToken(request.refreshToken)
-            .orElseThrow { GeneralException.of(ErrorCode.WRONG_REFRESH_TOKEN) }
+            .orElseThrow { GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED) }
 
         if (!jwtTokenProvider.validateToken(request.refreshToken)) {
-            throw GeneralException.of(ErrorCode.TOKEN_EXPIRED)
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
         }
 
         val providerId = try {
             jwtTokenProvider.getSubject(request.accessToken, allowExpired = true)
         } catch (_: JwtException) {
-            throw GeneralException.of(ErrorCode.TOKEN_INVALID)
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
         }
 
         val user = userRepository.findByProviderId(providerId)
-            .orElseThrow { GeneralException.of(ErrorCode.USER_NOT_FOUND) }
+            .orElseThrow { GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED) }
 
         if (refreshTokenEntity.user.id != user.id) {
-            throw GeneralException.of(ErrorCode.TOKEN_INVALID)
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
         }
 
         val newAccessToken = jwtTokenProvider.generateAccessToken(user)
@@ -136,7 +162,15 @@ class LoginService(
     }
 
     private fun resolveUserInfo(request: MobileLoginRequest): ResolvedUserInfo {
+        if (request.kakaoAccessToken.isBlank()) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
+
         val kakaoUser = kakaoClient.fetchUserInfo(request.kakaoAccessToken)
+        
+        if (kakaoUser.id == null) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
         
         return ResolvedUserInfo(
             providerId = kakaoUser.id.toString(),

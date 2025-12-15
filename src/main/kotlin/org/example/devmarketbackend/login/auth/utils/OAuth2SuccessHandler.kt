@@ -26,32 +26,50 @@ class OAuth2SuccessHandler(
 
     @Throws(IOException::class)
     override fun onAuthenticationSuccess(request: HttpServletRequest, response: HttpServletResponse, authentication: Authentication) {
-        val oAuth2User = authentication.principal as? DefaultOAuth2User
-            ?: throw GeneralException.of(ErrorCode.OAUTH2_PROCESS_FAILED)
+        try {
+            val oAuth2User = authentication.principal as? DefaultOAuth2User
+                ?: throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
 
-        val providerId = oAuth2User.attributes["id"]?.toString()
-            ?: throw GeneralException.of(ErrorCode.OAUTH2_PROCESS_FAILED)
+            val providerId = oAuth2User.attributes["id"]?.toString()
+                ?: throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
 
-        val properties = oAuth2User.attributes["properties"] as? Map<*, *> ?: emptyMap<Any, Any>()
-        val kakaoAccount = oAuth2User.attributes["kakao_account"] as? Map<*, *>
+            val properties = oAuth2User.attributes["properties"] as? Map<*, *> ?: emptyMap<Any, Any>()
+            val kakaoAccount = oAuth2User.attributes["kakao_account"] as? Map<*, *>
 
-        val nickname = properties["nickname"]?.toString() ?: "KakaoUser"
-        val profileUrl = properties["profile_image"]?.toString()
-        val email = kakaoAccount?.get("email")?.toString()
+            val nickname = properties["nickname"]?.toString() ?: "KakaoUser"
+            val profileUrl = properties["profile_image"]?.toString()
+            val email = kakaoAccount?.get("email")?.toString()
 
-        val tokens = loginService.loginWithOAuth2UserInfo(
-            providerId = providerId,
-            nickname = nickname,
-            profileUrl = profileUrl,
-            email = email
-        )
-
-        response.contentType = MediaType.APPLICATION_JSON_VALUE
-        response.writer.write(
-            objectMapper.writeValueAsString(
-                ApiResponse.onSuccess(SuccessCode.USER_LOGIN_SUCCESS, tokens)
+            val tokens = loginService.loginWithOAuth2UserInfo(
+                providerId = providerId,
+                nickname = nickname,
+                profileUrl = profileUrl,
+                email = email
             )
-        )
+
+            response.contentType = MediaType.APPLICATION_JSON_VALUE
+            response.writer.write(
+                objectMapper.writeValueAsString(
+                    ApiResponse.onSuccess(SuccessCode.USER_LOGIN_SUCCESS, tokens)
+                )
+            )
+        } catch (e: GeneralException) {
+            response.status = ErrorCode.USER_NOT_AUTHENTICATED.httpStatus.value()
+            response.contentType = MediaType.APPLICATION_JSON_VALUE
+            response.writer.write(
+                objectMapper.writeValueAsString(
+                    ApiResponse.onFailure<Any>(ErrorCode.USER_NOT_AUTHENTICATED, null)
+                )
+            )
+        } catch (e: Exception) {
+            response.status = ErrorCode.USER_NOT_AUTHENTICATED.httpStatus.value()
+            response.contentType = MediaType.APPLICATION_JSON_VALUE
+            response.writer.write(
+                objectMapper.writeValueAsString(
+                    ApiResponse.onFailure<Any>(ErrorCode.USER_NOT_AUTHENTICATED, null)
+                )
+            )
+        }
     }
 }
 
