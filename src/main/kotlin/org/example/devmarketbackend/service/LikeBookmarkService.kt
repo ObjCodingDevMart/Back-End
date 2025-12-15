@@ -32,12 +32,14 @@ class LikeBookmarkService(
     }
 
     @Transactional
-    fun removeBookmark(bookmarkId: Long) {
-        if(!likeBookmarkRepository.existsById(bookmarkId)) {
-            throw GeneralException.of(ErrorCode.BOOKMARK_NOT_FOUND)
-        }
-        likeBookmarkRepository.deleteById(bookmarkId)
+    fun removeBookmark(user: User, itemId: Long) {
+        val managedUser = resolveUser(user)
+        val item = findItemOrThrow(itemId)
+        val bookmark = likeBookmarkRepository.findByUserAndItem(managedUser, item)
+            .orElseThrow { GeneralException.of(ErrorCode.BOOKMARK_NOT_FOUND) }
 
+        managedUser.likeBookmark.remove(bookmark)
+        likeBookmarkRepository.delete(bookmark)
     }
 
     @Transactional
