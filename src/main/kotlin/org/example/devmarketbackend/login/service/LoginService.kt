@@ -29,10 +29,35 @@ class LoginService(
     private val jwtTokenProvider: JwtTokenProvider,
     private val kakaoClient: KakaoClient
 ) {
+    private fun resolveUserInfo(request: MobileLoginRequest): ResolvedUserInfo {
+        if (request.kakaoAccessToken.isBlank()) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
 
-    /**
-     * 모바일 앱에서 카카오 액세스 토큰을 받아 로그인 처리
-     */
+        val kakaoUser = kakaoClient.fetchUserInfo(request.kakaoAccessToken)
+
+        if (kakaoUser.id == null) {
+            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
+        }
+
+        return ResolvedUserInfo(
+            providerId = kakaoUser.id.toString(),
+            nickname = kakaoUser.properties?.nickname ?: "KakaoUser",
+            profileUrl = kakaoUser.properties?.profileImageUrl,
+            email = kakaoUser.kakaoAccount?.email
+        )
+    }
+
+    private data class ResolvedUserInfo(
+        val providerId: String,
+        val nickname: String,
+        val profileUrl: String?,
+        val email: String?
+    )
+
+    private fun Date.toLocalDateTime(): LocalDateTime =
+        LocalDateTime.ofInstant(this.toInstant(), ZoneId.systemDefault())
+
     @Transactional
     fun loginWithKakao(request: MobileLoginRequest): AuthTokenResponse {
         return try {
@@ -45,9 +70,6 @@ class LoginService(
         }
     }
 
-    /**
-     * 웹 OAuth2 플로우에서 이미 파싱된 사용자 정보로 로그인 처리
-     */
     @Transactional
     fun loginWithOAuth2UserInfo(
         providerId: String,
@@ -74,9 +96,7 @@ class LoginService(
         }
     }
 
-    /**
-     * 사용자 정보로 로그인 처리하는 공통 메서드
-     */
+
     private fun loginWithUserInfo(resolved: ResolvedUserInfo): AuthTokenResponse {
         if (resolved.providerId.isBlank()) {
             throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
@@ -161,33 +181,6 @@ class LoginService(
         )
     }
 
-    private fun resolveUserInfo(request: MobileLoginRequest): ResolvedUserInfo {
-        if (request.kakaoAccessToken.isBlank()) {
-            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
-        }
 
-        val kakaoUser = kakaoClient.fetchUserInfo(request.kakaoAccessToken)
-        
-        if (kakaoUser.id == null) {
-            throw GeneralException.of(ErrorCode.USER_NOT_AUTHENTICATED)
-        }
-        
-        return ResolvedUserInfo(
-            providerId = kakaoUser.id.toString(),
-            nickname = kakaoUser.properties?.nickname ?: "KakaoUser",
-            profileUrl = kakaoUser.properties?.profileImageUrl,
-            email = kakaoUser.kakaoAccount?.email
-        )
-    }
-
-    private data class ResolvedUserInfo(
-        val providerId: String,
-        val nickname: String,
-        val profileUrl: String?,
-        val email: String?
-    )
-
-    private fun Date.toLocalDateTime(): LocalDateTime =
-        LocalDateTime.ofInstant(this.toInstant(), ZoneId.systemDefault())
 }
 
